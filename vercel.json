@@ -3,6 +3,6 @@
   "cleanUrls": true,
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
-    { "source": "/((?!assets/|css/|js/|libs/|data/|admin\\.html|index\\.html|icon\\.png).*)", "destination": "/index.html" }
+    { "source": "/((?!assets/|css/|js/|libs/|data/|api/|admin\\.html|index\\.html|icon\\.png).*)", "destination": "/index.html" }
   ]
 }
