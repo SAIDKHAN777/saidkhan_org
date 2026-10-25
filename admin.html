@@ -1,0 +1,3133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Said Khan — Admin Console</title>
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="https://use.typekit.net/wvh2fzc.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="libs/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #030712;
+      --card-bg: rgba(10, 16, 28, 0.55);
+      --card-border: rgba(255, 255, 255, 0.09);
+      --card-hover: rgba(56, 189, 248, 0.28);
+      --primary: #38bdf8;
+      --primary-hover: #0ea5e9;
+      --primary-glow: rgba(56, 189, 248, 0.2);
+      --accent: #a855f7;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 12px;
+      --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-display: 'futura-pt', 'Space Grotesk', -apple-system, sans-serif;
+      --font-mono: 'Space Grotesk', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      background-color: #030712;
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      overflow-x: hidden;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    }
+
+    /* 3D Background Canvas */
+    #admin-webgl {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: none;
+      display: block;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.14); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+    /* Login Screen */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(3, 7, 18, 0.78);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(11, 18, 32, 0.88);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 36px;
+      text-align: center;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85);
+    }
+
+    .login-logo {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      margin-bottom: 6px;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .login-subtitle {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 28px;
+      letter-spacing: 0.01em;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      margin-bottom: 7px;
+      letter-spacing: 0.01em;
+    }
+
+    .input-control {
+      width: 100%;
+      padding: 11px 14px;
+      background: rgba(4, 9, 18, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 9px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .input-control:focus {
+      background: rgba(4, 9, 18, 0.85);
+      border-color: rgba(56, 189, 248, 0.6);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+    }
+
+    textarea.input-control {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: var(--transition);
+      user-select: none;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+
+    .btn-primary {
+      background: #ffffff;
+      color: #030712;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-primary:hover {
+      background: #e2e8f0;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: #ffffff;
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #ffffff;
+    }
+
+    .btn-block { width: 100%; }
+
+    /* App Shell */
+    #app {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+      position: relative;
+      z-index: 1;
+      background: transparent;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 250px;
+      background: rgba(8, 14, 26, 0.65) !important;
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.4);
+      padding: 24px 14px;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 50;
+    }
+
+    .brand {
+      padding: 0 10px 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 20px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-item {
+      padding: 9px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: var(--transition);
+      border: 1px solid transparent;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      color: #ffffff;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-item.active {
+      background: rgba(56, 189, 248, 0.12);
+      color: #ffffff;
+      border: 1px solid rgba(56, 189, 248, 0.25);
+    }
+
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+      color: #64748b;
+      transition: color 0.2s ease;
+    }
+
+    .nav-item.active .nav-icon {
+      color: #38bdf8;
+    }
+
+    .nav-item:hover .nav-icon {
+      color: #cbd5e1;
+    }
+
+    .sidebar-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Main Content */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      position: relative;
+    }
+
+    /* Top Navigation Header */
+    .top-header {
+      height: 64px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 14, 26, 0.55) !important;
+      backdrop-filter: blur(24px) saturate(180%);
+      -webkit-backdrop-filter: blur(24px) saturate(180%);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0.02em;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+    }
+
+    .status-dot.dirty {
+      background: var(--warning);
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 32px;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.2s ease forwards;
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-header {
+      margin-bottom: 24px;
+    }
+
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+    }
+
+    .panel-desc {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 4px;
+      font-weight: 400;
+      letter-spacing: 0.01em;
+    }
+
+    /* Card Grid & Cards */
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 22px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(20px) saturate(190%);
+      -webkit-backdrop-filter: blur(20px) saturate(190%);
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      transition: var(--transition);
+    }
+
+    .glass-card:hover {
+      border-color: var(--card-hover);
+      box-shadow: 0 14px 36px -5px rgba(0, 0, 0, 0.55), 0 0 18px rgba(56, 189, 248, 0.1);
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-number {
+      font-family: var(--font-mono);
+      font-size: 30px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    /* Items List (Work / Art / Press) */
+    .item-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background: rgba(8, 14, 26, 0.48);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      transition: var(--transition);
+    }
+
+    .item-row:hover {
+      background: rgba(14, 23, 42, 0.68);
+      border-color: rgba(56, 189, 248, 0.35);
+      transform: translateX(4px);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .item-thumb {
+      width: 72px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #111;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0;
+    }
+
+    .item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .item-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* Skills 3-Lines (Rows) & Chips */
+    .skill-line-block {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 18px;
+    }
+
+    .skills-chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      min-height: 52px;
+      align-items: center;
+    }
+
+    .skill-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #f3f4f6;
+      transition: var(--transition);
+    }
+
+    .skill-chip:hover {
+      border-color: var(--primary);
+      background: rgba(56, 189, 248, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .skill-chip-img {
+      width: 20px;
+      height: 20px;
+      object-fit: contain;
+      /* Auto Monochrome Filter */
+      filter: grayscale(100%) brightness(190%) contrast(120%);
+      opacity: 0.95;
+    }
+
+    .skill-chip-del {
+      cursor: pointer;
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-left: 6px;
+      line-height: 1;
+      transition: var(--transition);
+    }
+
+    .skill-chip-del:hover {
+      color: var(--danger);
+      transform: scale(1.25);
+    }
+
+    /* Smart Contextual Section Save Button */
+    .section-save-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: linear-gradient(135deg, var(--primary) 0%, #0284c7 100%);
+      color: #030712;
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 15px var(--primary-glow);
+      opacity: 0;
+      visibility: hidden;
+      transform: scale(0.85);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .section-save-btn.show {
+      opacity: 1;
+      visibility: visible;
+      transform: scale(1);
+    }
+
+    .section-save-btn.saved {
+      background: var(--success) !important;
+      color: #fff !important;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.5) !important;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 18, 0.72);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: rgba(11, 18, 33, 0.92) !important;
+      backdrop-filter: blur(28px) saturate(190%);
+      -webkit-backdrop-filter: blur(28px) saturate(190%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(56, 189, 248, 0.15);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .modal-close:hover { color: #fff; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--primary);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px var(--primary-glow);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+      z-index: 10000;
+      animation: slideUp 0.3s ease forwards;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 3D Raymarched WebGL Background -->
+  <canvas id="admin-webgl"></canvas>
+
+  <!-- Login Modal -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <div class="login-logo">Said Khan</div>
+      <div class="login-subtitle">Management Console</div>
+      <form id="login-form">
+        <div class="input-group">
+          <label class="input-label">Security Key</label>
+          <input type="password" id="admin-password" class="input-control" placeholder="••••••••" required autofocus>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main Shell -->
+  <div id="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-title">SAID KHAN</div>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="overview">
+          <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+          Overview
+        </li>
+        <li class="nav-item" data-tab="profile">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Bio & Skills
+        </li>
+        <li class="nav-item" data-tab="work">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          Work Projects
+        </li>
+        <li class="nav-item" data-tab="art">
+          <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+          Art & Explorations
+        </li>
+        <li class="nav-item" data-tab="press">
+          <svg class="nav-icon" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Press & Articles
+        </li>
+        <li class="nav-item" data-tab="system">
+          <svg class="nav-icon" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+          System & Backup
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <a href="/" target="_blank" class="btn btn-secondary btn-block">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Live Portfolio
+        </a>
+        <button id="btn-logout" class="btn btn-secondary btn-block" style="color: #94a3b8;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-status">
+          <div class="status-dot" id="status-indicator"></div>
+          <span id="status-text">Synced with storage</span>
+        </div>
+        <div class="header-actions">
+          <button id="btn-save-disk" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Changes
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <main class="content-area">
+
+        <!-- 1. OVERVIEW TAB -->
+        <section id="tab-overview" class="view-panel active">
+          <div class="panel-header">
+            <h1 class="panel-title">Overview</h1>
+            <p class="panel-desc">Content metrics and platform status.</p>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom: 24px;">
+            <div class="glass-card" style="margin-bottom:0;">
+              <div class="card-title">Work Projects</div>
+              <div id="stat-work-count" class="stat-number">0</div>
+            </div>
+            <div class="glass-card" style="margin-bottom:0;">
+              <div class="card-title">Art Items</div>
+              <div id="stat-art-count" class="stat-number">0</div>
+            </div>
+            <div class="glass-card" style="margin-bottom:0;">
+              <div class="card-title">Press & Articles</div>
+              <div id="stat-press-count" class="stat-number">0</div>
+            </div>
+            <div class="glass-card" style="margin-bottom:0;">
+              <div class="card-title">Awards</div>
+              <div id="stat-awards-count" class="stat-number">0</div>
+            </div>
+            <div class="glass-card" style="margin-bottom:0;">
+              <div class="card-title">Client Brands</div>
+              <div id="stat-clients-count" class="stat-number">0</div>
+            </div>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-title">
+              <span>Quick Actions</span>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <button class="btn btn-secondary" onclick="switchTab('work')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                New Project
+              </button>
+              <button class="btn btn-secondary" onclick="switchTab('profile')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Profile
+              </button>
+              <button class="btn btn-secondary" onclick="downloadBackup()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export Backup
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. PROFILE & BIO & SKILLS TAB -->
+        <section id="tab-profile" class="view-panel">
+          <div class="panel-header">
+            <h1 class="panel-title">Bio & Skills</h1>
+            <p class="panel-desc">Manage personal biography, technical pillars, and client credentials.</p>
+          </div>
+
+          <!-- Brand Title & Tagline -->
+          <div class="glass-card">
+            <div class="card-title">
+              <span>Main Identity & Taglines</span>
+              <button type="button" class="section-save-btn" id="btn-save-title" onclick="saveSpecificSection('title')">Save</button>
+            </div>
+            <div class="grid-2">
+              <div class="input-group">
+                <label class="input-label">Full Name / Main Title</label>
+                <input type="text" id="prof-title" class="input-control">
+              </div>
+              <div class="input-group">
+                <label class="input-label">Subtitle / Discipline Tagline</label>
+                <input type="text" id="prof-subtitle" class="input-control">
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Browser Page Title</label>
+              <input type="text" id="prof-page-title" class="input-control">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Short Description / Meta Bio</label>
+              <textarea id="prof-desc" class="input-control"></textarea>
+            </div>
+          </div>
+
+          <!-- Cover / Feature Photo -->
+          <div class="glass-card">
+            <div class="card-title" style="margin-bottom: 8px;">
+              <span>Cover Photo</span>
+              <button type="button" class="section-save-btn" id="btn-save-cover" onclick="saveSpecificSection('cover')">Save</button>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+              Featured widescreen cover displayed at the top of the INFO view.
+            </p>
+
+            <div style="display:flex; gap:20px; flex-wrap:wrap; align-items:flex-start;">
+              <!-- Current Preview Box -->
+              <div style="flex:1; min-width:280px; max-width:480px;">
+                <div style="position:relative; width:100%; aspect-ratio:16/9; background:#05070c; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.12); box-shadow:0 12px 35px rgba(0,0,0,0.85);">
+                  <img id="cover-preview-img" src="assets/images/art/end-of-days-1.jpg" alt="Cover Preview" style="width:100%; height:100%; object-fit:cover; filter:grayscale(30%); transition:0.3s all;">
+                  <div style="position:absolute; bottom:0; left:0; right:0; padding:8px 12px; background:linear-gradient(to top, rgba(0,0,0,0.9), transparent); font-size:11px; color:#fff; display:flex; justify-content:space-between; align-items:center;">
+                    <span>Preview (16:9)</span>
+                    <span id="cover-file-label" style="opacity:0.75; font-family:monospace; font-size:11px;">end-of-days-1.jpg</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Upload Actions -->
+              <div style="flex:1; min-width:260px; display:flex; flex-direction:column; gap:12px;">
+                <div>
+                  <label class="input-label" style="margin-bottom:8px;">Upload Hero Photo</label>
+                  <input type="file" id="cover-file-input" accept="image/*" style="display:none;" onchange="handleCoverImageUpload(event)">
+                  <button type="button" class="btn btn-secondary btn-block" onclick="document.getElementById('cover-file-input').click()" style="padding:10px 16px;">
+                    Select Image
+                  </button>
+                </div>
+
+                <div class="input-group" style="margin-bottom:0;">
+                  <label class="input-label" style="font-size:11px;">Or Direct Image Path / URL</label>
+                  <input type="text" id="cover-image-path" class="input-control" placeholder="assets/images/..." style="font-size:12px; font-family:monospace;">
+                </div>
+
+                <small style="color:var(--text-muted); font-size:12px; line-height:1.5;">
+                  Recommended 16:9 aspect ratio (e.g. 1920x1080). Depth and vignette lighting are automatically preserved.
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Biography Box -->
+          <div class="glass-card">
+            <div class="card-title">
+              <span>Full Biography (INFO Narrative)</span>
+              <button type="button" class="section-save-btn" id="btn-save-bio" onclick="saveSpecificSection('bio')">Save</button>
+            </div>
+            <div class="input-group">
+              <label class="input-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>Biography Body</span>
+                <span style="font-size:11px; color:var(--text-muted);">Plain text or HTML</span>
+              </label>
+              <textarea id="prof-bio" class="input-control" style="min-height:220px; font-size:13px; line-height:1.6;" placeholder="Write your biography narrative here..."></textarea>
+              <small style="color:var(--text-muted); font-size:12px; margin-top:6px; display:block; line-height:1.5;">
+                Press Enter for paragraphs. HTML elements like <code>&lt;a&gt;</code> and <code>&lt;b&gt;</code> are supported.
+              </small>
+            </div>
+          </div>
+
+          <!-- Skills Section: 3 Horizontal Lines -->
+          <div class="glass-card">
+            <div class="card-title" style="margin-bottom: 20px;">
+              <span>Skills Architecture</span>
+              <span style="font-size:12px; font-weight:400; color:var(--text-muted);">Badges render in monochrome silhouette</span>
+            </div>
+
+            <!-- Line 1: BUILD -->
+            <div class="skill-line-block">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:13px; font-weight:600; color:#fff; letter-spacing:0.04em; text-transform:uppercase;">Row 1: Build</span>
+                  <span style="font-size:12px; color:var(--text-muted); font-weight:400;">(Full-stack Web, Three.js 3D & Architecture)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="section-save-btn" id="btn-save-build" onclick="saveSpecificSection('build')">Save</button>
+                  <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="openAddSkillModal('build')">
+                    + Add Skill
+                  </button>
+                </div>
+              </div>
+              <div id="skills-row-build" class="skills-chips-row"></div>
+            </div>
+
+            <!-- Line 2: AUTOMATE -->
+            <div class="skill-line-block">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:13px; font-weight:600; color:#fff; letter-spacing:0.04em; text-transform:uppercase;">Row 2: Automate</span>
+                  <span style="font-size:12px; color:var(--text-muted); font-weight:400;">(AI Pipelines, Automation & Workers)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="section-save-btn" id="btn-save-automate" onclick="saveSpecificSection('automate')">Save</button>
+                  <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="openAddSkillModal('automate')">
+                    + Add Skill
+                  </button>
+                </div>
+              </div>
+              <div id="skills-row-automate" class="skills-chips-row"></div>
+            </div>
+
+            <!-- Line 3: SCALE -->
+            <div class="skill-line-block" style="margin-bottom:0;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:13px; font-weight:600; color:#fff; letter-spacing:0.04em; text-transform:uppercase;">Row 3: Scale</span>
+                  <span style="font-size:12px; color:var(--text-muted); font-weight:400;">(Growth, Technical SEO & Analytics)</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button type="button" class="section-save-btn" id="btn-save-scale" onclick="saveSpecificSection('scale')">Save</button>
+                  <button type="button" class="btn btn-secondary" style="padding:6px 12px; font-size:12px;" onclick="openAddSkillModal('scale')">
+                    + Add Skill
+                  </button>
+                </div>
+              </div>
+              <div id="skills-row-scale" class="skills-chips-row"></div>
+            </div>
+          </div>
+
+          <!-- Awards & Recognition Manager -->
+          <div class="glass-card">
+            <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span>Awards & Recognition</span>
+                <span id="awards-count-badge" style="font-size:11px; padding:2px 7px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; font-weight:600;">0</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="section-save-btn" id="btn-save-awards" onclick="saveSpecificSection('awards')">Save</button>
+                <button type="button" class="btn btn-primary" style="padding:6px 12px; font-size:12px;" onclick="openAddAwardModal()">
+                  + Add Award
+                </button>
+              </div>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+              Honors and recognition items displayed in the awards section on the live INFO page.
+            </p>
+
+            <div id="awards-list-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:12px;"></div>
+          </div>
+
+          <!-- Select Clients & Brands Manager -->
+          <div class="glass-card">
+            <div class="card-title" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <span>Select Clients & Brands</span>
+                <span id="clients-count-badge" style="font-size:11px; padding:2px 7px; border-radius:10px; background:rgba(255,255,255,0.1); color:#fff; font-weight:600;">0</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="section-save-btn" id="btn-save-clients" onclick="saveSpecificSection('clients')">Save</button>
+                <button type="button" class="btn btn-primary" style="padding:6px 12px; font-size:12px;" onclick="openAddClientModal()">
+                  + Add Client Logo
+                </button>
+              </div>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+              Client brand logos displayed in the select clients grid on the live INFO page.
+            </p>
+
+            <div id="clients-grid-container" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:12px;"></div>
+          </div>
+
+          <!-- Social & Contact Channels Manager -->
+          <div class="glass-card">
+            <div class="card-title" style="margin-bottom: 8px;">
+              <span>Social & Contact Channels</span>
+              <button type="button" class="section-save-btn" id="btn-save-social" onclick="saveSpecificSection('social')">Save</button>
+            </div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px;">
+              Configure social links and contact destinations for the portfolio footer.
+            </p>
+
+            <div class="grid-2">
+              <!-- GitHub -->
+              <div class="input-group">
+                <label class="input-label" style="display:flex; align-items:center; gap:8px;">
+                  <img src="assets/images/social-github.svg" class="skill-chip-img" alt="GitHub">
+                  <span>GitHub Profile</span>
+                </label>
+                <input type="text" id="social-github" class="input-control" placeholder="https://github.com/saidkhan">
+              </div>
+
+              <!-- LinkedIn -->
+              <div class="input-group">
+                <label class="input-label" style="display:flex; align-items:center; gap:8px;">
+                  <img src="assets/images/social-linkedin.svg" class="skill-chip-img" alt="LinkedIn">
+                  <span>LinkedIn Profile</span>
+                </label>
+                <input type="text" id="social-linkedin" class="input-control" placeholder="https://linkedin.com/in/saidkhan">
+              </div>
+
+              <!-- Facebook -->
+              <div class="input-group">
+                <label class="input-label" style="display:flex; align-items:center; gap:8px;">
+                  <img src="assets/images/social-facebook.svg" class="skill-chip-img" alt="Facebook">
+                  <span>Facebook Profile</span>
+                </label>
+                <input type="text" id="social-facebook" class="input-control" placeholder="https://facebook.com/saidkhan">
+              </div>
+
+              <!-- WhatsApp -->
+              <div class="input-group">
+                <label class="input-label" style="display:flex; align-items:center; gap:8px;">
+                  <img src="assets/images/social-whatsapp.svg" class="skill-chip-img" alt="WhatsApp">
+                  <span>WhatsApp Contact</span>
+                </label>
+                <input type="text" id="social-whatsapp" class="input-control" placeholder="https://wa.me/8801700000000">
+              </div>
+
+              <!-- Official Contact Email -->
+              <div class="input-group" style="grid-column: 1 / -1; margin-top: 10px; padding: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px;">
+                <label class="input-label" style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="assets/images/social-email.svg" class="skill-chip-img" alt="Email" style="width:20px; height:20px;">
+                    <span style="font-weight:600; color:#fff; font-size:13px;">Official Contact Email</span>
+                  </div>
+                  <span style="font-size:11px; color:#94a3b8; background:rgba(255,255,255,0.06); padding:2px 8px; border-radius:4px;">Mailto Destination</span>
+                </label>
+                <input type="email" id="social-email" class="input-control" placeholder="saidkhan@example.com" style="font-size:14px;">
+                <small style="color:var(--text-muted); font-size:12px; margin-top:8px; display:block; line-height:1.5;">
+                  Primary contact address. Visitors clicking the email icon will open their default email client directly.
+                </small>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. WORK TAB -->
+        <section id="tab-work" class="view-panel">
+          <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 class="panel-title">Work Projects</h1>
+              <p class="panel-desc">Manage featured client work, engineering projects, and case studies.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openWorkModal()">+ New Project</button>
+          </div>
+
+          <div id="work-list-container"></div>
+        </section>
+
+        <!-- 4. ART TAB -->
+        <section id="tab-art" class="view-panel">
+          <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 class="panel-title">Art & 3D Explorations</h1>
+              <p class="panel-desc">Showcase procedural graphics, WebGL experiments, and shader artworks.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openArtModal()">+ New Art Item</button>
+          </div>
+
+          <div id="art-list-container"></div>
+        </section>
+
+        <!-- 5. PRESS TAB -->
+        <section id="tab-press" class="view-panel">
+          <div class="panel-header" style="display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <h1 class="panel-title">Press, Media & Articles</h1>
+              <p class="panel-desc">Publish articles, blog stories, press features, and media mentions.</p>
+            </div>
+            <button class="btn btn-primary" onclick="openPressModal()">+ New Article</button>
+          </div>
+
+          <div id="press-list-container"></div>
+        </section>
+
+        <!-- 6. SYSTEM TAB -->
+        <section id="tab-system" class="view-panel">
+          <div class="panel-header">
+            <h1 class="panel-title">System & Storage</h1>
+            <p class="panel-desc">Export portable JSON backups and restore snapshot states.</p>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-title">Full Site JSON Export</div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+              Export all site content, project registries, and configurations into a single standalone JSON file.
+            </p>
+            <button class="btn btn-primary" onclick="downloadBackup()">Export Backup</button>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-title">Restore from JSON Backup</div>
+            <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+              Upload a previously downloaded JSON backup file to restore your entire site state.
+            </p>
+            <input type="file" id="restore-file-input" accept=".json" style="margin-bottom:12px; display:block; font-size:12px; color:var(--text-muted);">
+            <button class="btn btn-secondary" onclick="restoreFromBackup()">Import Backup</button>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Add / Edit Skill Modal -->
+  <div id="skill-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header">
+        <h2 id="skill-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Add Skill</h2>
+        <button class="modal-close" onclick="closeSkillModal()">&times;</button>
+      </div>
+      <form id="skill-form">
+        <div class="input-group">
+          <label class="input-label">Select Pillar / Row</label>
+          <select id="skill-category" class="input-control" style="background:#090d16; cursor:pointer;">
+            <option value="build">Row 1: Build</option>
+            <option value="automate">Row 2: Automate</option>
+            <option value="scale">Row 3: Scale</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Skill Name</label>
+          <input type="text" id="skill-name" class="input-control" placeholder="e.g. Next.js, Three.js or AI Automation" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Skill Icon / Logo (Optional)</label>
+          <input type="text" id="skill-icon" class="input-control" placeholder="Image path or URL (optional)">
+          <div style="margin-top:8px;">
+            <input type="file" id="skill-file-upload" accept="image/*" style="font-size:12px; color:var(--text-muted);">
+          </div>
+          <!-- Live Auto-Monochrome Preview Box -->
+          <div id="skill-icon-preview-box" style="margin-top:12px; display:none; align-items:center; gap:10px; padding:10px; background:rgba(0,0,0,0.4); border-radius:8px;">
+            <span style="font-size:12px; color:var(--text-muted);">Monochrome Preview:</span>
+            <img id="skill-icon-preview" class="skill-chip-img" src="" alt="preview">
+          </div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closeSkillModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Skill</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Work Item Edit Modal -->
+  <div id="work-modal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="work-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Edit Project</h2>
+        <button class="modal-close" onclick="closeWorkModal()">&times;</button>
+      </div>
+      <form id="work-form">
+        <input type="hidden" id="work-edit-index">
+        <div class="input-group">
+          <label class="input-label">Project Title</label>
+          <input type="text" id="work-title" class="input-control" required>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Subtitle / Client</label>
+          <input type="text" id="work-subtitle" class="input-control">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Your Role</label>
+          <input type="text" id="work-role" class="input-control" placeholder="Lead Architect | Full-stack Developer">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Thumbnail Image Path or URL</label>
+          <input type="text" id="work-image" class="input-control" placeholder="assets/images/work/how-to-quit/share.jpg">
+          <div style="margin-top:8px;">
+            <input type="file" id="work-file-upload" accept="image/*" style="font-size:12px; color:var(--text-muted);">
+          </div>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Live Demo / Link URL</label>
+          <input type="text" id="work-link" class="input-control" placeholder="https://example.com">
+        </div>
+        <div class="input-group">
+          <label class="input-label">Project Description</label>
+          <textarea id="work-desc" class="input-control"></textarea>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+          <button type="button" class="btn btn-secondary" onclick="closeWorkModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Project</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Press & Blog Modal -->
+  <div id="press-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 650px;">
+      <div class="modal-header">
+        <h2 id="press-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Add Article</h2>
+        <button class="modal-close" onclick="closePressModal()">&times;</button>
+      </div>
+      <form id="press-form">
+        <input type="hidden" id="press-edit-index" value="-1">
+
+        <div class="input-group">
+          <label class="input-label">Article Title <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="press-title" class="input-control" placeholder="e.g. Building Scalable WebGL Architecture" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Article Body <span style="color:var(--danger);">*</span></span>
+            <span style="font-size:11px; color:var(--text-muted);">Plain text or HTML</span>
+          </label>
+          <textarea id="press-content" class="input-control" style="min-height:220px; font-size:13px; line-height:1.6;" placeholder="Write article content here..." required></textarea>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Cover & Thumbnail Image</label>
+          
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:10px;">
+            <div style="width:120px; height:75px; background:#000; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+              <img id="press-thumb-preview" src="assets/images/share-3.jpg" alt="Preview" style="width:100%; height:100%; object-fit:cover; filter:grayscale(30%);">
+            </div>
+
+            <div style="flex:1;">
+              <input type="file" id="press-file-upload" accept="image/*" style="display:none;" onchange="handlePressThumbUpload(event)">
+              <button type="button" class="btn btn-secondary btn-block" onclick="document.getElementById('press-file-upload').click()" style="padding:8px 12px; font-size:12px;">
+                Upload Image
+              </button>
+              <div style="margin-top:6px;">
+                <input type="text" id="press-thumb" class="input-control" placeholder="Or direct path: assets/images/press/..." style="font-size:11px; font-family:monospace; padding:6px 10px;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Subtitle / Excerpt</label>
+          <input type="text" id="press-subtitle" class="input-control" placeholder="e.g. Deep dive into 3D shaders & performance" style="font-size:12px;">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closePressModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-press-submit">Save & Publish</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Award Modal -->
+  <div id="award-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 id="award-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Add Award</h2>
+        <button class="modal-close" onclick="closeAwardModal()">&times;</button>
+      </div>
+      <form id="award-form">
+        <input type="hidden" id="award-edit-index" value="-1">
+
+        <div class="input-group">
+          <label class="input-label">Award Title <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="award-title" class="input-control" placeholder="e.g. Cyber Lions Gold, Webby Awards, FWA" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Trophy / Badge Icon <span style="color:var(--danger);">*</span></label>
+
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:10px;">
+            <div style="width:70px; height:70px; background:#000; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+              <img id="award-thumb-preview" src="assets/images/cannes.png" alt="Preview" style="max-width:55px; max-height:55px; object-fit:contain;">
+            </div>
+
+            <div style="flex:1;">
+              <input type="file" id="award-file-upload" accept="image/*" style="display:none;" onchange="handleAwardFileUpload(event)">
+              <button type="button" class="btn btn-secondary btn-block" onclick="document.getElementById('award-file-upload').click()" style="padding:8px 12px; font-size:12px;">
+                Upload Icon
+              </button>
+              <div style="margin-top:6px;">
+                <input type="text" id="award-image" class="input-control" placeholder="assets/images/cannes.png" style="font-size:11px; font-family:monospace; padding:6px 10px;" required>
+              </div>
+              <div style="margin-top:8px;">
+                <label style="font-size:12px; color:#cbd5e1; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="award-auto-monochrome" checked style="accent-color:#38bdf8; cursor:pointer;">
+                  <span>Auto-convert to transparent monochrome</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closeAwardModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-award-submit">Save Award</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Client Modal -->
+  <div id="client-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 id="client-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Add Client Logo</h2>
+        <button class="modal-close" onclick="closeClientModal()">&times;</button>
+      </div>
+      <form id="client-form">
+        <input type="hidden" id="client-edit-index" value="-1">
+
+        <div class="input-group">
+          <label class="input-label">Client / Brand Logo Image <span style="color:var(--danger);">*</span></label>
+
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:10px;">
+            <div style="width:80px; height:60px; background:#000; border-radius:8px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+              <img id="client-thumb-preview" src="assets/images/clients/apple.png" alt="Preview" style="max-width:60px; max-height:40px; object-fit:contain;">
+            </div>
+
+            <div style="flex:1;">
+              <input type="file" id="client-file-upload" accept="image/*" style="display:none;" onchange="handleClientFileUpload(event)">
+              <button type="button" class="btn btn-secondary btn-block" onclick="document.getElementById('client-file-upload').click()" style="padding:8px 12px; font-size:12px;">
+                Upload Logo
+              </button>
+              <div style="margin-top:6px;">
+                <input type="text" id="client-image" class="input-control" placeholder="assets/images/clients/apple.png" style="font-size:11px; font-family:monospace; padding:6px 10px;" required>
+              </div>
+              <div style="margin-top:8px;">
+                <label style="font-size:12px; color:#cbd5e1; display:inline-flex; align-items:center; gap:6px; cursor:pointer;">
+                  <input type="checkbox" id="client-auto-monochrome" checked style="accent-color:#38bdf8; cursor:pointer;">
+                  <span>Auto-convert to transparent monochrome</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Brand Name (Optional)</label>
+          <input type="text" id="client-name" class="input-control" placeholder="e.g. Apple, Google, Nike">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closeClientModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-client-submit">Save Client</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add / Edit Art Modal -->
+  <div id="art-modal" class="modal-backdrop">
+    <div class="modal-content" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2 id="art-modal-title" style="font-size:16px; font-weight:600; color:#fff; text-transform:uppercase; letter-spacing:0.04em;">Add Art Item</h2>
+        <button class="modal-close" onclick="closeArtModal()">&times;</button>
+      </div>
+      <form id="art-form">
+        <input type="hidden" id="art-edit-index" value="-1">
+
+        <div class="input-group">
+          <label class="input-label">Art Title <span style="color:var(--danger);">*</span></label>
+          <input type="text" id="art-title" class="input-control" placeholder="e.g. Matrix Sentinels r4" required>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Subtitle / Series Name</label>
+          <input type="text" id="art-subtitle" class="input-control" placeholder="e.g. Matrix Sentinels Series">
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Art Thumbnail / Image <span style="color:var(--danger);">*</span></label>
+          <div style="display:flex; gap:16px; align-items:center; margin-bottom:10px;">
+            <div style="width:75px; height:75px; background:#000; border-radius:8px; overflow:hidden; border:1px solid rgba(255,255,255,0.15); flex-shrink:0;">
+              <img id="art-thumb-preview" src="assets/images/share-3.jpg" alt="Preview" style="width:100%; height:100%; object-fit:cover;">
+            </div>
+            <div style="flex:1;">
+              <input type="file" id="art-file-upload" accept="image/*" style="display:none;" onchange="handleArtFileUpload(event)">
+              <button type="button" class="btn btn-secondary btn-block" onclick="document.getElementById('art-file-upload').click()" style="padding:8px 12px; font-size:12px;">
+                Upload Image
+              </button>
+              <div style="margin-top:6px;">
+                <input type="text" id="art-thumb" class="input-control" placeholder="assets/images/art/..." style="font-size:11px; font-family:monospace; padding:6px 10px;" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Tags (comma-separated)</label>
+          <input type="text" id="art-tags" class="input-control" placeholder="shader, fractal, webgl, threejs">
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:24px;">
+          <button type="button" class="btn btn-secondary" onclick="closeArtModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-art-submit">Save Art</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast"></div>
+
+  <script>
+    // State management
+    let SITE_DATA = null;
+    let AUTH_TOKEN = localStorage.getItem("saidkhan_studio_token") || "";
+    let IS_DIRTY = false;
+
+    // Toast helper
+    function showToast(msg, isSuccess = true) {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.style.borderColor = isSuccess ? "var(--primary)" : "var(--danger)";
+      toast.style.display = "block";
+      setTimeout(() => { toast.style.display = "none"; }, 3500);
+    }
+
+    function markDirty() {
+      IS_DIRTY = true;
+      document.getElementById("status-indicator").classList.add("dirty");
+      document.getElementById("status-text").textContent = "Unsaved changes (Click 'Save Changes')";
+    }
+
+    function markClean() {
+      IS_DIRTY = false;
+      document.getElementById("status-indicator").classList.remove("dirty");
+      document.getElementById("status-text").textContent = "All changes synced with disk";
+    }
+
+    // Direct Disk Sync helper
+    async function saveChangesToDisk(silent = false) {
+      if (typeof syncProfileData === "function") syncProfileData();
+      if (typeof syncSocialData === "function") syncSocialData();
+      try {
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ data: SITE_DATA })
+        });
+        const json = await res.json();
+        if (json.success) {
+          markClean();
+          if (!silent) {
+            showToast(json.message || "All changes saved to disk successfully!", true);
+          }
+          return true;
+        } else {
+          if (res.status === 401) {
+            document.getElementById("login-overlay").style.display = "flex";
+            showToast("Session expired. Please log in again.", false);
+          } else {
+            alert("Save failed: " + (json.error || "Unknown error"));
+          }
+          return false;
+        }
+      } catch (err) {
+        alert("Network error: " + err.message);
+        return false;
+      }
+    }
+
+    // Check login
+    async function initAuth() {
+      if (!AUTH_TOKEN) {
+        document.getElementById("login-overlay").style.display = "flex";
+      } else {
+        document.getElementById("login-overlay").style.display = "none";
+        await loadSiteData();
+      }
+    }
+
+    // Login Form Submit
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const password = document.getElementById("admin-password").value;
+      try {
+        const res = await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password })
+        });
+        const json = await res.json();
+        if (json.success) {
+          AUTH_TOKEN = json.token;
+          localStorage.setItem("saidkhan_studio_token", AUTH_TOKEN);
+          document.getElementById("login-overlay").style.display = "none";
+          showToast("Welcome Said! Studio access granted.");
+          await loadSiteData();
+        } else {
+          alert(json.error || "Login failed. Please check password.");
+        }
+      } catch (err) {
+        alert("Server connection error: " + err.message);
+      }
+    });
+
+    // Logout
+    document.getElementById("btn-logout").addEventListener("click", () => {
+      if (confirm("Are you sure you want to sign out?")) {
+        localStorage.removeItem("saidkhan_studio_token");
+        location.reload();
+      }
+    });
+
+    // Load data from Backendless API
+    async function loadSiteData() {
+      try {
+        const res = await fetch("/api/data");
+        const json = await res.json();
+        if (json.success) {
+          SITE_DATA = json.data;
+          renderAll();
+          markClean();
+        }
+      } catch (err) {
+        showToast("Failed to load data: " + err.message, false);
+      }
+    }
+
+    // Render Data into Forms & Lists
+    function renderAll() {
+      if (!SITE_DATA) return;
+
+      // Stats
+      document.getElementById("stat-work-count").textContent = SITE_DATA.work?.list?.length || 0;
+      document.getElementById("stat-art-count").textContent = SITE_DATA.art?.list?.length || 0;
+      document.getElementById("stat-press-count").textContent = SITE_DATA.press?.list?.length || 0;
+
+      // Awards & Clients counts
+      const elAwardsStat = document.getElementById("stat-awards-count");
+      if (elAwardsStat) elAwardsStat.textContent = SITE_DATA.info?.awards?.length || 0;
+      const elClientsStat = document.getElementById("stat-clients-count");
+      if (elClientsStat) elClientsStat.textContent = SITE_DATA.info?.clients?.length || 0;
+
+      // Profile & Bio
+      document.getElementById("prof-title").value = SITE_DATA.home?.title || SITE_DATA.title || "";
+      document.getElementById("prof-subtitle").value = SITE_DATA.home?.subtitle || "";
+      document.getElementById("prof-page-title").value = SITE_DATA["page-title"] || "";
+      document.getElementById("prof-desc").value = SITE_DATA.description || "";
+      document.getElementById("prof-bio").value = SITE_DATA.info?.bio || "";
+
+      // Cover Photo
+      renderCoverPhoto();
+
+      // Render Skills in 3 Lines inside Bio tab
+      renderSkillsRows();
+
+      // Render Social Channels inside Bio tab
+      renderSocialFields();
+
+      // Render Awards & Clients inside Bio tab
+      renderAwardsList();
+      renderClientsList();
+
+      // Lists
+      renderWorkList();
+      renderArtList();
+      renderPressList();
+    }
+
+    // Render Skills in 3 Horizontal Lines
+    function renderSkillsRows() {
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!SITE_DATA.info.skills) {
+        SITE_DATA.info.skills = {
+          build: [
+            { name: "Next.js", icon: "" },
+            { name: "Three.js", icon: "" },
+            { name: "GLSL Shaders", icon: "" },
+            { name: "Fastify", icon: "" },
+            { name: "PostgreSQL", icon: "" },
+            { name: "Docker", icon: "" },
+            { name: "Prisma ORM", icon: "" }
+          ],
+          automate: [
+            { name: "AI Video Pipelines", icon: "" },
+            { name: "Facebook Automation", icon: "" },
+            { name: "Background Workers", icon: "" },
+            { name: "FFmpeg Scripting", icon: "" },
+            { name: "Task Orchestration", icon: "" }
+          ],
+          scale: [
+            { name: "Digital Marketing", icon: "" },
+            { name: "Technical SEO", icon: "" },
+            { name: "Conversion Architecture", icon: "" },
+            { name: "Growth Strategy", icon: "" },
+            { name: "Analytics & Funnels", icon: "" }
+          ]
+        };
+      }
+
+      ['build', 'automate', 'scale'].forEach(cat => {
+        const container = document.getElementById(`skills-row-${cat}`);
+        if (!container) return;
+        container.innerHTML = "";
+        const list = SITE_DATA.info.skills[cat] || [];
+
+        if (list.length === 0) {
+          container.innerHTML = '<span style="font-size:12px; color:var(--text-muted); font-style:italic;">No skills added yet. Click "+ Add Skill" to add.</span>';
+          return;
+        }
+
+        list.forEach((s, idx) => {
+          const chip = document.createElement("div");
+          chip.className = "skill-chip";
+          
+          let iconHtml = "";
+          if (s.icon) {
+            iconHtml = `<img src="${escapeHtml(s.icon)}" class="skill-chip-img" title="${escapeHtml(s.name)}" onerror="this.style.display='none'">`;
+          }
+
+          chip.innerHTML = `
+            ${iconHtml}
+            <span>${escapeHtml(s.name)}</span>
+            <span class="skill-chip-del" title="Delete" onclick="deleteSkill('${cat}', ${idx})">&times;</span>
+          `;
+          container.appendChild(chip);
+        });
+      });
+    }
+
+    function openAddSkillModal(defaultCat = 'build') {
+      document.getElementById("skill-category").value = defaultCat;
+      document.getElementById("skill-name").value = "";
+      document.getElementById("skill-icon").value = "";
+      document.getElementById("skill-file-upload").value = "";
+      document.getElementById("skill-icon-preview-box").style.display = "none";
+      document.getElementById("skill-modal").classList.add("active");
+    }
+
+    function closeSkillModal() {
+      document.getElementById("skill-modal").classList.remove("active");
+    }
+
+    async function deleteSkill(category, index) {
+      if (!SITE_DATA.info?.skills?.[category]) return;
+      SITE_DATA.info.skills[category].splice(index, 1);
+      renderSkillsRows();
+      showToast("Deleting skill...");
+      await saveChangesToDisk(true);
+      showToast("Skill deleted permanently!", true);
+    }
+
+    // Skill Form Submit
+    document.getElementById("skill-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const cat = document.getElementById("skill-category").value;
+      const name = document.getElementById("skill-name").value.trim();
+      const icon = document.getElementById("skill-icon").value.trim();
+
+      if (!name) return;
+
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!SITE_DATA.info.skills) SITE_DATA.info.skills = { build: [], automate: [], scale: [] };
+      if (!SITE_DATA.info.skills[cat]) SITE_DATA.info.skills[cat] = [];
+
+      SITE_DATA.info.skills[cat].push({ name, icon });
+
+      closeSkillModal();
+      renderSkillsRows();
+      showToast("Saving skill to disk...");
+      await saveChangesToDisk(true);
+      showToast(`Skill '${name}' saved permanently!`, true);
+    });
+
+    // Skill Icon File Upload
+    document.getElementById("skill-file-upload").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${AUTH_TOKEN}`
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              base64Data: reader.result
+            })
+          });
+          const json = await res.json();
+          if (json.success) {
+            document.getElementById("skill-icon").value = json.url;
+            const preview = document.getElementById("skill-icon-preview");
+            preview.src = json.url;
+            document.getElementById("skill-icon-preview-box").style.display = "flex";
+            showToast("Logo uploaded! Auto-monochrome preview ready.");
+          } else {
+            alert(json.error);
+          }
+        } catch (err) {
+          alert("Upload failed: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Render Work List
+    function renderWorkList() {
+      const container = document.getElementById("work-list-container");
+      container.innerHTML = "";
+      const list = SITE_DATA.work?.list || [];
+
+      list.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        const thumb = item.thumb || item.feature?.images?.[0]?.file || item.media?.[0]?.file || "assets/images/share-3.jpg";
+        row.innerHTML = `
+          <img class="item-thumb" src="${thumb}" onerror="this.src='icon.png'">
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.title || "Untitled")}</div>
+            <div class="item-meta">${escapeHtml(item.subtitle || "")} &bull; <span style="color:var(--primary);">${escapeHtml(item.role || "Developer")}</span></div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editWork(${index})">Edit</button>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteWork(${index})">Delete</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Render Art List
+    function renderArtList() {
+      const container = document.getElementById("art-list-container");
+      container.innerHTML = "";
+      const list = SITE_DATA.art?.list || [];
+
+      list.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        const thumb = item.thumb || item.feature?.images?.[0]?.file || "assets/images/share-3.jpg";
+        row.innerHTML = `
+          <img class="item-thumb" src="${thumb}" onerror="this.src='icon.png'">
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.title || "Untitled Art")}</div>
+            <div class="item-meta">${escapeHtml(item.subtitle || "Shader & 3D Art")}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editArt(${index})">Edit</button>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deleteArt(${index})">Delete</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Render Press List
+    function renderPressList() {
+      const container = document.getElementById("press-list-container");
+      container.innerHTML = "";
+      const list = SITE_DATA.press?.list || [];
+
+      list.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        const thumb = item.thumb || "assets/images/share-3.jpg";
+        row.innerHTML = `
+          <img class="item-thumb" src="${thumb}" onerror="this.src='icon.png'">
+          <div class="item-info">
+            <div class="item-title">${escapeHtml(item.title || "Untitled Press / Blog")}</div>
+            <div class="item-meta">${escapeHtml(item.subtitle || item.publication || "Blog Article")}</div>
+          </div>
+          <div class="item-actions">
+            <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="editPress(${index})">Edit</button>
+            <button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deletePress(${index})">Delete</button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Press / Blog Modal Functions
+    function openPressModal(index = -1) {
+      document.getElementById("press-modal-title").textContent = index >= 0 ? "Edit Article / Press" : "Add Article / Press";
+      document.getElementById("press-edit-index").value = index;
+      document.getElementById("press-form").reset();
+
+      if (index >= 0) {
+        const item = SITE_DATA.press?.list?.[index] || {};
+        document.getElementById("press-title").value = item.title || "";
+        document.getElementById("press-subtitle").value = item.subtitle || "";
+        document.getElementById("press-content").value = item.content || "";
+        document.getElementById("press-thumb").value = item.thumb || "";
+        document.getElementById("press-thumb-preview").src = item.thumb || "assets/images/share-3.jpg";
+      } else {
+        document.getElementById("press-thumb-preview").src = "assets/images/share-3.jpg";
+      }
+
+      document.getElementById("press-modal").classList.add("active");
+    }
+
+    function closePressModal() {
+      document.getElementById("press-modal").classList.remove("active");
+    }
+
+    function editPress(index) {
+      openPressModal(index);
+    }
+
+    async function deletePress(index) {
+      const item = SITE_DATA.press?.list?.[index];
+      const title = item ? (item.title || "Article") : "Article";
+      if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+      SITE_DATA.press?.list?.splice(index, 1);
+      renderPressList();
+      showToast(`Deleting "${title}"...`);
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast(`"${title}" deleted permanently!`, true);
+      }
+    }
+
+    async function handlePressThumbUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        const base64Data = evt.target.result;
+        document.getElementById("press-thumb-preview").src = base64Data;
+
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${AUTH_TOKEN}`
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              base64Data: base64Data
+            })
+          });
+          const json = await res.json();
+          if (json.success) {
+            document.getElementById("press-thumb").value = json.url;
+            document.getElementById("press-thumb-preview").src = json.url;
+            showToast("Cover image uploaded successfully!");
+          } else {
+            alert("Upload failed: " + json.error);
+          }
+        } catch (err) {
+          alert("Upload error: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Work CRUD
+    function openWorkModal() {
+      document.getElementById("work-modal-title").textContent = "Add Work Project";
+      document.getElementById("work-edit-index").value = "-1";
+      document.getElementById("work-form").reset();
+      document.getElementById("work-modal").classList.add("active");
+    }
+
+    function closeWorkModal() {
+      document.getElementById("work-modal").classList.remove("active");
+    }
+
+    function editWork(index) {
+      const item = SITE_DATA.work.list[index];
+      document.getElementById("work-modal-title").textContent = "Edit Project";
+      document.getElementById("work-edit-index").value = index;
+      document.getElementById("work-title").value = item.title || "";
+      document.getElementById("work-subtitle").value = item.subtitle || "";
+      document.getElementById("work-role").value = item.role || "";
+      document.getElementById("work-image").value = item.thumb || item.feature?.images?.[0]?.file || "";
+      document.getElementById("work-link").value = item.link || "";
+      document.getElementById("work-desc").value = item.content || "";
+      document.getElementById("work-modal").classList.add("active");
+    }
+
+    async function deleteWork(index) {
+      const item = SITE_DATA.work?.list?.[index];
+      const title = item ? (item.title || "Project") : "Project";
+      if (confirm(`Are you sure you want to delete "${title}"?`)) {
+        SITE_DATA.work.list.splice(index, 1);
+        renderWorkList();
+        showToast(`Deleting "${title}"...`);
+        const ok = await saveChangesToDisk(true);
+        if (ok) {
+          showToast(`"${title}" deleted permanently!`, true);
+        } else {
+          showToast("Failed to save deletion to disk", false);
+        }
+      }
+    }
+
+    async function deleteArt(index) {
+      const item = SITE_DATA.art?.list?.[index];
+      const title = item ? (item.title || "Art item") : "Art item";
+      if (confirm(`Are you sure you want to delete "${title}"?`)) {
+        SITE_DATA.art.list.splice(index, 1);
+        renderArtList();
+        showToast(`Deleting "${title}"...`);
+        const ok = await saveChangesToDisk(true);
+        if (ok) {
+          showToast(`"${title}" deleted permanently!`, true);
+        } else {
+          showToast("Failed to save deletion to disk", false);
+        }
+      }
+    }
+
+    async function deletePress(index) {
+      const item = SITE_DATA.press?.list?.[index];
+      const title = item ? (item.title || "Article") : "Article";
+      if (confirm(`Are you sure you want to delete "${title}"?`)) {
+        SITE_DATA.press.list.splice(index, 1);
+        renderPressList();
+        showToast(`Deleting "${title}"...`);
+        const ok = await saveChangesToDisk(true);
+        if (ok) {
+          showToast(`"${title}" deleted permanently!`, true);
+        } else {
+          showToast("Failed to save deletion to disk", false);
+        }
+      }
+    }
+
+    // File Upload Handler for Work Modal
+    document.getElementById("work-file-upload").addEventListener("change", async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${AUTH_TOKEN}`
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              base64Data: reader.result
+            })
+          });
+          const json = await res.json();
+          if (json.success) {
+            document.getElementById("work-image").value = json.url;
+            showToast("Image uploaded successfully!");
+          } else {
+            alert(json.error);
+          }
+        } catch (err) {
+          alert("Upload failed: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Work Form Save
+    document.getElementById("work-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("work-edit-index").value);
+      const title = document.getElementById("work-title").value;
+      const subtitle = document.getElementById("work-subtitle").value;
+      const role = document.getElementById("work-role").value;
+      const image = document.getElementById("work-image").value || "assets/images/share-3.jpg";
+      const link = document.getElementById("work-link").value;
+      const desc = document.getElementById("work-desc").value;
+
+      const projectObj = {
+        title,
+        subtitle,
+        role,
+        thumb: image,
+        link,
+        content: desc,
+        feature: {
+          type: "image",
+          id: "",
+          source: "vimeo",
+          title,
+          images: [{ file: image }],
+          iframe: ""
+        }
+      };
+
+      if (!SITE_DATA.work) SITE_DATA.work = { list: [] };
+      if (!SITE_DATA.work.list) SITE_DATA.work.list = [];
+
+      if (idx >= 0) {
+        SITE_DATA.work.list[idx] = Object.assign({}, SITE_DATA.work.list[idx], projectObj);
+      } else {
+        SITE_DATA.work.list.unshift(projectObj);
+      }
+
+      closeWorkModal();
+      renderWorkList();
+      showToast("Saving project to disk...");
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast("Project saved permanently!", true);
+      }
+    });
+
+    // Press / Blog Form Submit
+    document.getElementById("press-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("press-edit-index").value, 10);
+      const title = document.getElementById("press-title").value.trim();
+      const subtitle = document.getElementById("press-subtitle").value.trim();
+      const content = document.getElementById("press-content").value.trim();
+      const thumb = document.getElementById("press-thumb").value.trim() || "assets/images/share-3.jpg";
+
+      // Slug for clean in-app routing
+      const safeSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || `post-${Date.now()}`;
+      const link = `press/${safeSlug}`;
+
+      const pressObj = {
+        title,
+        subtitle: subtitle || title,
+        publication: "Blog",
+        link,
+        url: window.location.origin + "/" + link,
+        thumb,
+        content
+      };
+
+      if (!SITE_DATA.press) SITE_DATA.press = { list: [] };
+      if (!SITE_DATA.press.list) SITE_DATA.press.list = [];
+
+      if (idx >= 0) {
+        SITE_DATA.press.list[idx] = Object.assign({}, SITE_DATA.press.list[idx], pressObj);
+      } else {
+        SITE_DATA.press.list.unshift(pressObj);
+      }
+
+      closePressModal();
+      renderPressList();
+      markDirty();
+
+      // Automatically sync and save to disk
+      try {
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ data: SITE_DATA })
+        });
+        const json = await res.json();
+        if (json.success) {
+          markClean();
+          showToast("Article published and saved successfully!");
+        }
+      } catch (err) {
+        showToast("Article added to list (click 'Save Changes' to persist)");
+      }
+    });
+
+    document.getElementById("press-thumb")?.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        document.getElementById("press-thumb-preview").src = val;
+      }
+    });
+
+    // Cover Photo Manager
+    function renderCoverPhoto() {
+      const coverFile = SITE_DATA.info?.feature?.images?.[0]?.file || "assets/images/art/end-of-days-1.jpg";
+      const previewImg = document.getElementById("cover-preview-img");
+      const pathInput = document.getElementById("cover-image-path");
+      const fileLabel = document.getElementById("cover-file-label");
+      if (previewImg) previewImg.src = coverFile;
+      if (pathInput) pathInput.value = coverFile;
+      if (fileLabel) fileLabel.textContent = coverFile.split("/").pop();
+    }
+
+    async function handleCoverImageUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        const base64Data = evt.target.result;
+        // Instant visual preview
+        document.getElementById("cover-preview-img").src = base64Data;
+        document.getElementById("cover-file-label").textContent = "Uploading...";
+
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${AUTH_TOKEN}`
+            },
+            body: JSON.stringify({
+              fileName: file.name,
+              base64Data: base64Data
+            })
+          });
+          const json = await res.json();
+          if (json.success) {
+            document.getElementById("cover-image-path").value = json.url;
+            document.getElementById("cover-preview-img").src = json.url;
+            document.getElementById("cover-file-label").textContent = json.fileName;
+            
+            if (!SITE_DATA.info) SITE_DATA.info = {};
+            if (!SITE_DATA.info.feature) {
+              SITE_DATA.info.feature = { type: "image", id: "", source: "vimeo", title: "", images: [], iframe: "" };
+            }
+            SITE_DATA.info.feature.type = "image";
+            SITE_DATA.info.feature.images = [{ file: json.url }];
+            
+            markSectionDirty("cover");
+          } else {
+            alert("Upload failed: " + json.error);
+          }
+        } catch (err) {
+          alert("Upload error: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Render Social & Contact Links (GitHub, LinkedIn, Facebook, WhatsApp, Email)
+    function renderSocialFields() {
+      const socialList = SITE_DATA.info?.social || [];
+      const getSocialUrl = (title) => {
+        const item = socialList.find(s => s.title && s.title.toLowerCase() === title.toLowerCase());
+        return item ? item.url : "";
+      };
+
+      document.getElementById("social-github").value = getSocialUrl("github");
+      document.getElementById("social-linkedin").value = getSocialUrl("linkedin");
+      document.getElementById("social-facebook").value = getSocialUrl("facebook");
+      document.getElementById("social-whatsapp").value = getSocialUrl("whatsapp");
+
+      const emailItem = socialList.find(s => s.type === "mail" || (s.title && s.title.toLowerCase() === "email"));
+      if (emailItem && emailItem.url) {
+        document.getElementById("social-email").value = emailItem.url.replace(/^mailto:/i, "");
+      } else {
+        document.getElementById("social-email").value = "";
+      }
+    }
+
+    function syncSocialData() {
+      const githubUrl = document.getElementById("social-github").value.trim();
+      const linkedinUrl = document.getElementById("social-linkedin").value.trim();
+      const facebookUrl = document.getElementById("social-facebook").value.trim();
+      const whatsappUrl = document.getElementById("social-whatsapp").value.trim();
+      const emailVal = document.getElementById("social-email").value.trim();
+
+      const newSocial = [];
+      if (githubUrl) {
+        newSocial.push({ title: "GitHub", url: githubUrl, file: "assets/images/social-github.svg" });
+      }
+      if (linkedinUrl) {
+        newSocial.push({ title: "LinkedIn", url: linkedinUrl, file: "assets/images/social-linkedin.svg" });
+      }
+      if (facebookUrl) {
+        newSocial.push({ title: "Facebook", url: facebookUrl, file: "assets/images/social-facebook.svg" });
+      }
+      if (whatsappUrl) {
+        newSocial.push({ title: "WhatsApp", url: whatsappUrl, file: "assets/images/social-whatsapp.svg" });
+      }
+      if (emailVal) {
+        const mailtoUrl = emailVal.toLowerCase().startsWith("mailto:") ? emailVal : `mailto:${emailVal}`;
+        newSocial.push({
+          title: "Email",
+          url: mailtoUrl,
+          file: "assets/images/social-email.svg",
+          type: "mail"
+        });
+      }
+
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      SITE_DATA.info.social = newSocial;
+    }
+
+    // Smart Per-Section Save Helpers
+    function markSectionDirty(sectionKey) {
+      const btn = document.getElementById(`btn-save-${sectionKey}`);
+      if (btn) {
+        btn.classList.add("show");
+        btn.classList.remove("saved");
+        btn.innerHTML = "Save";
+      }
+      markDirty();
+    }
+
+    async function saveSpecificSection(sectionKey) {
+      const btn = document.getElementById(`btn-save-${sectionKey}`);
+      if (btn) {
+        btn.innerHTML = "Saving...";
+      }
+
+      syncProfileData();
+      syncSocialData();
+
+      try {
+        const res = await fetch("/api/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ data: SITE_DATA })
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (btn) {
+            btn.classList.add("saved");
+            btn.innerHTML = "Saved";
+            setTimeout(() => {
+              btn.classList.remove("show", "saved");
+              btn.innerHTML = "Save";
+            }, 1200);
+          }
+          markClean();
+          showToast(json.message || "Section changes saved successfully!");
+        } else {
+          alert("Save failed: " + json.error);
+          if (btn) btn.innerHTML = "Save";
+        }
+      } catch (err) {
+        alert("Network error: " + err.message);
+        if (btn) btn.innerHTML = "Save";
+      }
+    }
+
+    // Profile Inputs change listeners (Section 1: Title & Subtitle)
+    ["prof-title", "prof-subtitle", "prof-page-title", "prof-desc"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        syncProfileData();
+        markSectionDirty("title");
+      });
+    });
+
+    // Bio Input change listener (Section 2: Bio)
+    document.getElementById("prof-bio").addEventListener("input", () => {
+      syncProfileData();
+      markSectionDirty("bio");
+    });
+
+    // Social Inputs change listeners (Section 6: Social)
+    ["social-github", "social-linkedin", "social-facebook", "social-whatsapp", "social-email"].forEach(id => {
+      document.getElementById(id).addEventListener("input", () => {
+        syncSocialData();
+        markSectionDirty("social");
+      });
+    });
+
+    // Cover Image Path change listener (Section Cover)
+    document.getElementById("cover-image-path")?.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) {
+        document.getElementById("cover-preview-img").src = val;
+        document.getElementById("cover-file-label").textContent = val.split("/").pop();
+        if (!SITE_DATA.info) SITE_DATA.info = {};
+        if (!SITE_DATA.info.feature) {
+          SITE_DATA.info.feature = { type: "image", id: "", source: "vimeo", title: "", images: [], iframe: "" };
+        }
+        SITE_DATA.info.feature.type = "image";
+        SITE_DATA.info.feature.images = [{ file: val }];
+        markSectionDirty("cover");
+      }
+    });
+
+    function syncProfileData() {
+      const title = document.getElementById("prof-title").value;
+      const subtitle = document.getElementById("prof-subtitle").value;
+      const pageTitle = document.getElementById("prof-page-title").value;
+      const desc = document.getElementById("prof-desc").value;
+      const bio = document.getElementById("prof-bio").value;
+      const coverPath = document.getElementById("cover-image-path")?.value.trim();
+
+      SITE_DATA.title = title;
+      if (SITE_DATA.home) {
+        SITE_DATA.home.title = title;
+        SITE_DATA.home.subtitle = subtitle;
+        SITE_DATA.home["page-title"] = pageTitle;
+        SITE_DATA.home.content = desc;
+      }
+      SITE_DATA["page-title"] = pageTitle;
+      SITE_DATA.description = desc;
+      if (SITE_DATA.info) {
+        SITE_DATA.info.bio = bio;
+        if (coverPath) {
+          if (!SITE_DATA.info.feature) {
+            SITE_DATA.info.feature = { type: "image", id: "", source: "vimeo", title: "", images: [], iframe: "" };
+          }
+          SITE_DATA.info.feature.type = "image";
+          SITE_DATA.info.feature.images = [{ file: coverPath }];
+        }
+      }
+    }
+
+    // Save to Disk via Backendless POST /api/save
+    document.getElementById("btn-save-disk").addEventListener("click", async () => {
+      await saveChangesToDisk(false);
+    });
+
+    // Keyboard shortcut Ctrl+S or Cmd+S
+    window.addEventListener("keydown", (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        document.getElementById("btn-save-disk").click();
+      }
+    });
+
+    // Tab Navigation
+    function switchTab(tabId) {
+      document.querySelectorAll(".nav-item").forEach(item => {
+        item.classList.toggle("active", item.getAttribute("data-tab") === tabId);
+      });
+      document.querySelectorAll(".view-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === `tab-${tabId}`);
+      });
+    }
+
+    document.querySelectorAll(".nav-item").forEach(item => {
+      item.addEventListener("click", () => {
+        switchTab(item.getAttribute("data-tab"));
+      });
+    });
+
+    // Download Backup
+    function downloadBackup() {
+      const jsonStr = JSON.stringify(SITE_DATA, null, 2);
+      const blob = new Blob([jsonStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `saidkhan-portfolio-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("JSON backup downloaded successfully!");
+    }
+
+    // Restore from Backup
+    function restoreFromBackup() {
+      const input = document.getElementById("restore-file-input");
+      if (!input.files || !input.files[0]) {
+        alert("Please select a valid JSON backup file!");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const restored = JSON.parse(reader.result);
+          if (confirm("Are you sure you want to overwrite all current data with this backup?")) {
+            SITE_DATA = restored;
+            renderAll();
+            markDirty();
+            showToast("Data restored! Click 'Save Changes' to persist.");
+          }
+        } catch (err) {
+          alert("Invalid JSON file: " + err.message);
+        }
+      };
+      reader.readAsText(input.files[0]);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Start
+    initAuth();
+  
+    // ==========================================
+    // AWARDS & RECOGNITION CRUD
+    // ==========================================
+    function renderAwardsList() {
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!Array.isArray(SITE_DATA.info.awards)) SITE_DATA.info.awards = [];
+      const awards = SITE_DATA.info.awards;
+
+      const badge = document.getElementById("awards-count-badge");
+      if (badge) badge.textContent = awards.length;
+      const stat = document.getElementById("stat-awards-count");
+      if (stat) stat.textContent = awards.length;
+
+      const container = document.getElementById("awards-list-container");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (awards.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic; background: rgba(0,0,0,0.3); border-radius: 8px;">No awards added yet. Click "+ Add Award" above to add one.</div>';
+        return;
+      }
+
+      awards.forEach((award, index) => {
+        const card = document.createElement("div");
+        card.style.cssText = "display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 8px; transition: var(--transition);";
+        card.innerHTML = `
+          <div style="width: 44px; height: 44px; background: #000; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid rgba(255,255,255,0.08);">
+            <img src="${escapeHtml(award.file || 'assets/images/cannes.png')}" alt="" style="max-width: 36px; max-height: 36px; object-fit: contain;" onerror="this.src='icon.png'">
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-size: 13px; font-weight: 600; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(award.title || 'Untitled Award')}</div>
+            <div style="font-size: 10px; color: var(--text-muted); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(award.file || '')}</div>
+          </div>
+          <div style="display: flex; gap: 6px; flex-shrink: 0;">
+            <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 11px;" onclick="editAward(${index})">Edit</button>
+            <button type="button" class="btn btn-danger" style="padding: 4px 8px; font-size: 11px;" onclick="deleteAward(${index})">Delete</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openAddAwardModal() {
+      document.getElementById("award-modal-title").textContent = "Add Award / Recognition";
+      document.getElementById("award-edit-index").value = "-1";
+      document.getElementById("award-title").value = "";
+      document.getElementById("award-image").value = "";
+      document.getElementById("award-thumb-preview").src = "assets/images/cannes.png";
+      document.getElementById("award-modal").classList.add("active");
+    }
+
+    function closeAwardModal() {
+      document.getElementById("award-modal").classList.remove("active");
+    }
+
+    function editAward(index) {
+      const award = SITE_DATA.info.awards[index];
+      if (!award) return;
+      document.getElementById("award-modal-title").textContent = "Edit Award";
+      document.getElementById("award-edit-index").value = index;
+      document.getElementById("award-title").value = award.title || "";
+      document.getElementById("award-image").value = award.file || "";
+      document.getElementById("award-thumb-preview").src = award.file || "assets/images/cannes.png";
+      document.getElementById("award-modal").classList.add("active");
+    }
+
+    async function deleteAward(index) {
+      const award = SITE_DATA.info?.awards?.[index];
+      const title = award ? (award.title || "Award") : "Award";
+      if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+      SITE_DATA.info.awards.splice(index, 1);
+      renderAwardsList();
+      showToast(`Deleting "${title}"...`);
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast(`"${title}" deleted permanently!`, true);
+      }
+    }
+
+    // Auto-Remove Background & Convert to Pure White Transparent Monochrome
+    function processImageToMonochromePng(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+
+            const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imgData.data;
+
+            // Check corner luminance to see if background is light
+            const corners = [
+              [0, 0],
+              [canvas.width - 1, 0],
+              [0, canvas.height - 1],
+              [canvas.width - 1, canvas.height - 1]
+            ];
+            let cornerLumSum = 0;
+            let cornerCount = 0;
+            for (const [cx, cy] of corners) {
+              const idx = (cy * canvas.width + cx) * 4;
+              const a = data[idx + 3];
+              if (a > 20) {
+                cornerLumSum += 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                cornerCount++;
+              }
+            }
+            const isLightBg = cornerCount === 0 || (cornerLumSum / cornerCount) > 140;
+
+            let minX = canvas.width, maxX = 0, minY = canvas.height, maxY = 0;
+            let hasContent = false;
+
+            for (let y = 0; y < canvas.height; y++) {
+              for (let x = 0; x < canvas.width; x++) {
+                const i = (y * canvas.width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
+
+                if (a < 15) {
+                  data[i + 3] = 0;
+                  continue;
+                }
+
+                const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                let newAlpha = 0;
+
+                if (isLightBg) {
+                  if (lum < 232) {
+                    newAlpha = Math.min(255, Math.round(((255 - lum) / 255) * 1.55 * 255));
+                  }
+                } else {
+                  if (lum > 30) {
+                    newAlpha = Math.min(255, Math.round((lum / 255) * 1.55 * 255));
+                  }
+                }
+
+                if (newAlpha > 15) {
+                  data[i] = 255;
+                  data[i + 1] = 255;
+                  data[i + 2] = 255;
+                  data[i + 3] = newAlpha;
+
+                  if (x < minX) minX = x;
+                  if (x > maxX) maxX = x;
+                  if (y < minY) minY = y;
+                  if (y > maxY) maxY = y;
+                  hasContent = true;
+                } else {
+                  data[i + 3] = 0;
+                }
+              }
+            }
+
+            ctx.putImageData(imgData, 0, 0);
+
+            // Auto-crop to content bounding box with a 4% margin
+            if (hasContent && (maxX > minX) && (maxY > minY)) {
+              const padX = Math.round((maxX - minX) * 0.04);
+              const padY = Math.round((maxY - minY) * 0.04);
+              const cropX = Math.max(0, minX - padX);
+              const cropY = Math.max(0, minY - padY);
+              const cropW = Math.min(canvas.width - cropX, maxX - minX + padX * 2);
+              const cropH = Math.min(canvas.height - cropY, maxY - minY + padY * 2);
+
+              const cropCanvas = document.createElement("canvas");
+              cropCanvas.width = cropW;
+              cropCanvas.height = cropH;
+              const cropCtx = cropCanvas.getContext("2d");
+              cropCtx.drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+              resolve(cropCanvas.toDataURL("image/png"));
+              return;
+            }
+
+            resolve(canvas.toDataURL("image/png"));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleAwardFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const autoMono = document.getElementById("award-auto-monochrome") ? document.getElementById("award-auto-monochrome").checked : true;
+      showToast(autoMono ? "Removing background & converting to monochrome..." : "Uploading icon...");
+
+      try {
+        let base64Data = "";
+        let finalFileName = file.name;
+
+        if (autoMono) {
+          base64Data = await processImageToMonochromePng(file);
+          finalFileName = file.name.replace(/\.[^.]+$/, "") + "-mono.png";
+        } else {
+          base64Data = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = rej;
+            r.readAsDataURL(file);
+          });
+        }
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ fileName: finalFileName, base64Data })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById("award-image").value = json.url;
+          document.getElementById("award-thumb-preview").src = json.url;
+          showToast(autoMono ? "Monochrome award icon uploaded successfully!" : "Award icon uploaded successfully!");
+        } else {
+          alert("Upload failed: " + json.error);
+        }
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      }
+    }
+
+    document.getElementById("award-image")?.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) document.getElementById("award-thumb-preview").src = val;
+    });
+
+    document.getElementById("award-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("award-edit-index").value);
+      const title = document.getElementById("award-title").value.trim();
+      const file = document.getElementById("award-image").value.trim();
+
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!Array.isArray(SITE_DATA.info.awards)) SITE_DATA.info.awards = [];
+
+      const newAward = { title, file };
+      if (idx >= 0 && idx < SITE_DATA.info.awards.length) {
+        SITE_DATA.info.awards[idx] = newAward;
+      } else {
+        SITE_DATA.info.awards.push(newAward);
+      }
+
+      renderAwardsList();
+      closeAwardModal();
+      showToast("Saving award to disk...");
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast("Award saved permanently!", true);
+      }
+    });
+
+    // ==========================================
+    // CLIENTS & BRANDS CRUD
+    // ==========================================
+    function renderClientsList() {
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!Array.isArray(SITE_DATA.info.clients)) SITE_DATA.info.clients = [];
+      const clients = SITE_DATA.info.clients;
+
+      const badge = document.getElementById("clients-count-badge");
+      if (badge) badge.textContent = clients.length;
+      const stat = document.getElementById("stat-clients-count");
+      if (stat) stat.textContent = clients.length;
+
+      const container = document.getElementById("clients-grid-container");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (clients.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1 / -1; padding: 24px; text-align: center; color: var(--text-muted); font-size: 13px; font-style: italic; background: rgba(0,0,0,0.3); border-radius: 8px;">No clients added yet. Click "+ Add Client Logo" above to add one.</div>';
+        return;
+      }
+
+      clients.forEach((client, index) => {
+        const name = client.name || client.file.split("/").pop().replace(/\.[^.]+$/, "");
+        const card = document.createElement("div");
+        card.style.cssText = "background: rgba(0,0,0,0.4); border: 1px solid var(--card-border); border-radius: 8px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; position: relative; min-height: 95px; transition: var(--transition);";
+        card.innerHTML = `
+          <div style="position: absolute; top: 4px; right: 4px; display: flex; gap: 4px;">
+            <button type="button" class="btn btn-danger" style="padding: 2px 6px; font-size: 10px; border-radius: 4px;" onclick="deleteClient(${index})" title="Delete Client">&times;</button>
+          </div>
+          <div style="width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="editClient(${index})" title="Click to Edit">
+            <img src="${escapeHtml(client.file || '')}" alt="${escapeHtml(name)}" style="max-width: 70px; max-height: 42px; object-fit: contain; opacity: 0.85;" onerror="this.src='icon.png'">
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: capitalize; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; cursor: pointer;" onclick="editClient(${index})">
+            ${escapeHtml(name)}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openAddClientModal() {
+      document.getElementById("client-modal-title").textContent = "Add Client Brand Logo";
+      document.getElementById("client-edit-index").value = "-1";
+      document.getElementById("client-name").value = "";
+      document.getElementById("client-image").value = "";
+      document.getElementById("client-thumb-preview").src = "assets/images/clients/apple.png";
+      document.getElementById("client-modal").classList.add("active");
+    }
+
+    function closeClientModal() {
+      document.getElementById("client-modal").classList.remove("active");
+    }
+
+    function editClient(index) {
+      const client = SITE_DATA.info.clients[index];
+      if (!client) return;
+      document.getElementById("client-modal-title").textContent = "Edit Client Brand Logo";
+      document.getElementById("client-edit-index").value = index;
+      document.getElementById("client-name").value = client.name || "";
+      document.getElementById("client-image").value = client.file || "";
+      document.getElementById("client-thumb-preview").src = client.file || "assets/images/clients/apple.png";
+      document.getElementById("client-modal").classList.add("active");
+    }
+
+    async function deleteClient(index) {
+      const client = SITE_DATA.info?.clients?.[index];
+      const title = client ? (client.name || "Client logo") : "Client logo";
+      if (!confirm(`Are you sure you want to delete "${title}"?`)) return;
+      SITE_DATA.info.clients.splice(index, 1);
+      renderClientsList();
+      showToast(`Deleting "${title}"...`);
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast(`"${title}" deleted permanently!`, true);
+      }
+    }
+
+    async function handleClientFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const autoMono = document.getElementById("client-auto-monochrome") ? document.getElementById("client-auto-monochrome").checked : true;
+      showToast(autoMono ? "Removing background & converting to monochrome..." : "Uploading logo...");
+
+      try {
+        let base64Data = "";
+        let finalFileName = file.name;
+
+        if (autoMono) {
+          base64Data = await processImageToMonochromePng(file);
+          finalFileName = file.name.replace(/\.[^.]+$/, "") + "-mono.png";
+        } else {
+          base64Data = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result);
+            r.onerror = rej;
+            r.readAsDataURL(file);
+          });
+        }
+
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${AUTH_TOKEN}`
+          },
+          body: JSON.stringify({ fileName: finalFileName, base64Data })
+        });
+        const json = await res.json();
+        if (json.success) {
+          document.getElementById("client-image").value = json.url;
+          document.getElementById("client-thumb-preview").src = json.url;
+          if (!document.getElementById("client-name").value) {
+            const suggested = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
+            document.getElementById("client-name").value = suggested;
+          }
+          showToast(autoMono ? "Monochrome logo created & uploaded successfully!" : "Brand logo uploaded successfully!");
+        } else {
+          alert("Upload failed: " + json.error);
+        }
+      } catch (err) {
+        alert("Upload error: " + err.message);
+      }
+    }
+
+    document.getElementById("client-image")?.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) document.getElementById("client-thumb-preview").src = val;
+    });
+
+    document.getElementById("client-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("client-edit-index").value);
+      const name = document.getElementById("client-name").value.trim();
+      const file = document.getElementById("client-image").value.trim();
+
+      if (!SITE_DATA.info) SITE_DATA.info = {};
+      if (!Array.isArray(SITE_DATA.info.clients)) SITE_DATA.info.clients = [];
+
+      const newClient = { file };
+      if (name) newClient.name = name;
+
+      if (idx >= 0 && idx < SITE_DATA.info.clients.length) {
+        SITE_DATA.info.clients[idx] = newClient;
+      } else {
+        SITE_DATA.info.clients.push(newClient);
+      }
+
+      renderClientsList();
+      closeClientModal();
+      showToast("Saving client to disk...");
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast("Client saved permanently!", true);
+      }
+    });
+
+  
+    // ==========================================
+    // ART CRUD
+    // ==========================================
+    function openArtModal(index = -1) {
+      document.getElementById("art-edit-index").value = index;
+      if (index >= 0 && SITE_DATA.art?.list?.[index]) {
+        const item = SITE_DATA.art.list[index];
+        document.getElementById("art-modal-title").textContent = "Edit Art Project";
+        document.getElementById("art-title").value = item.title || "";
+        document.getElementById("art-subtitle").value = item.subtitle || "";
+        document.getElementById("art-thumb").value = item.thumb || "";
+        document.getElementById("art-thumb-preview").src = item.thumb || "assets/images/share-3.jpg";
+        document.getElementById("art-tags").value = item.tags || "";
+      } else {
+        document.getElementById("art-modal-title").textContent = "Add Art Project";
+        document.getElementById("art-title").value = "";
+        document.getElementById("art-subtitle").value = "";
+        document.getElementById("art-thumb").value = "";
+        document.getElementById("art-thumb-preview").src = "assets/images/share-3.jpg";
+        document.getElementById("art-tags").value = "";
+      }
+      document.getElementById("art-modal").classList.add("active");
+    }
+
+    function closeArtModal() {
+      document.getElementById("art-modal").classList.remove("active");
+    }
+
+    function editArt(index) {
+      openArtModal(index);
+    }
+
+    async function handleArtFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const res = await fetch("/api/upload", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${AUTH_TOKEN}`
+            },
+            body: JSON.stringify({ fileName: file.name, base64Data: reader.result })
+          });
+          const json = await res.json();
+          if (json.success) {
+            document.getElementById("art-thumb").value = json.url;
+            document.getElementById("art-thumb-preview").src = json.url;
+            showToast("Art image uploaded successfully!");
+          } else {
+            alert("Upload failed: " + json.error);
+          }
+        } catch (err) {
+          alert("Upload error: " + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.getElementById("art-thumb")?.addEventListener("input", (e) => {
+      const val = e.target.value.trim();
+      if (val) document.getElementById("art-thumb-preview").src = val;
+    });
+
+    document.getElementById("art-form")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const idx = parseInt(document.getElementById("art-edit-index").value);
+      const title = document.getElementById("art-title").value.trim();
+      const subtitle = document.getElementById("art-subtitle").value.trim();
+      const thumb = document.getElementById("art-thumb").value.trim();
+      const tags = document.getElementById("art-tags").value.trim();
+
+      if (!SITE_DATA.art) SITE_DATA.art = { list: [] };
+      if (!Array.isArray(SITE_DATA.art.list)) SITE_DATA.art.list = [];
+
+      const slug = "art/" + title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      const newArt = { title, subtitle, thumb, tags, link: slug };
+
+      if (idx >= 0 && idx < SITE_DATA.art.list.length) {
+        SITE_DATA.art.list[idx] = Object.assign(SITE_DATA.art.list[idx], newArt);
+      } else {
+        SITE_DATA.art.list.push(newArt);
+      }
+
+      renderArtList();
+      closeArtModal();
+      showToast("Saving art project to disk...");
+      const ok = await saveChangesToDisk(true);
+      if (ok) {
+        showToast("Art project saved permanently!", true);
+      }
+    });
+
+    // ==========================================
+    // 3D RAYMARCHED ORB BACKGROUND (THREE.JS)
+    // ==========================================
+    (function initAdminOrbBackground() {
+      if (typeof THREE === 'undefined') {
+        console.warn("THREE.js not loaded for 3D orb background.");
+        return;
+      }
+
+      const canvas = document.getElementById("admin-webgl");
+      if (!canvas) return;
+
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(90, width / height, 1, 1000);
+      camera.position.set(0, 0, 50);
+
+      let renderer;
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          antialias: false,
+          alpha: true,
+          powerPreference: "high-performance"
+        });
+      } catch (e) {
+        console.warn("WebGL initialization failed:", e);
+        return;
+      }
+
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+      renderer.debug.checkShaderErrors = false;
+
+      const clock = new THREE.Clock();
+      const mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+
+      window.addEventListener("mousemove", (e) => {
+        mouse.targetX = (e.clientX - window.innerWidth / 2);
+        mouse.targetY = (e.clientY - window.innerHeight / 2);
+      }, { passive: true });
+
+      const texLoader = new THREE.TextureLoader();
+      const noiseTex = texLoader.load("assets/images/tex1.png");
+      noiseTex.wrapS = THREE.RepeatWrapping;
+      noiseTex.wrapT = THREE.RepeatWrapping;
+
+      const spriteTex = texLoader.load("assets/images/sprite1.png");
+
+      // Ambient Space Dust / Particles
+      const particleGeo = new THREE.BufferGeometry();
+      const particleCount = 320;
+      const positions = [];
+      for (let i = 0; i < particleCount; i++) {
+        positions.push(
+          (Math.random() - 0.5) * 80,
+          (Math.random() - 0.5) * 80,
+          (Math.random() - 0.5) * 80
+        );
+      }
+      particleGeo.addAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+
+      const particleMat1 = new THREE.PointsMaterial({
+        size: 0.35,
+        map: spriteTex,
+        blending: THREE.AdditiveBlending,
+        depthTest: false,
+        transparent: true,
+        opacity: 0.45,
+        color: new THREE.Color(0.3, 0.7, 0.9)
+      });
+
+      const particleMat2 = new THREE.PointsMaterial({
+        size: 0.3,
+        map: spriteTex,
+        blending: THREE.AdditiveBlending,
+        depthTest: false,
+        transparent: true,
+        opacity: 0.35,
+        color: new THREE.Color(0.3, 0.3, 0.8)
+      });
+
+      const particles1 = new THREE.Points(particleGeo, particleMat1);
+      const particles2 = new THREE.Points(particleGeo, particleMat2);
+      particles1.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+      particles2.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+      scene.add(particles1);
+      scene.add(particles2);
+
+      let backgroundUniforms = null;
+      let backgroundPlane = null;
+
+      // Load Orb Shaders asynchronously
+      Promise.all([
+        fetch("libs/shaders/BackgroundVertexShader.js").then(res => res.text()),
+        fetch("libs/shaders/orb1.js").then(res => res.text())
+      ]).then(([vShader, fShader]) => {
+        backgroundUniforms = {
+          iTime: { type: "f", value: 100.0 },
+          iResolution: { type: "v2", value: new THREE.Vector2(width, height) },
+          iMouse: { type: "v2", value: new THREE.Vector2(0, 0) },
+          audio1: { type: "f", value: 2.66 },
+          adj: { type: "f", value: 0.2 - (height / width) },
+          orbOpacity: { type: "f", value: 1.0 },
+          intensity: { type: "f", value: 1.0 },
+          iChannel0: { type: "t", value: noiseTex }
+        };
+
+        const material = new THREE.ShaderMaterial({
+          uniforms: backgroundUniforms,
+          vertexShader: vShader,
+          fragmentShader: fShader,
+          depthWrite: false,
+          depthTest: false
+        });
+
+        const aspect = width / height;
+        const geometry = new THREE.PlaneGeometry(1, 1);
+        backgroundPlane = new THREE.Mesh(geometry, material);
+        backgroundPlane.scale.set(110 * aspect, 110, 1);
+        backgroundPlane.position.z = 0;
+        scene.add(backgroundPlane);
+
+        particles1.position.z = 8;
+        particles2.position.z = 15;
+      }).catch(err => {
+        console.error("Orb shader loading error:", err);
+      });
+
+      // Handle Resize
+      window.addEventListener("resize", () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+
+        if (backgroundUniforms) {
+          backgroundUniforms.iResolution.value.set(width, height);
+          backgroundUniforms.adj.value = 0.2 - (height / width);
+        }
+        if (backgroundPlane) {
+          const aspect = width / height;
+          backgroundPlane.scale.set(110 * aspect, 110, 1);
+        }
+      });
+
+      // 60fps RequestAnimationFrame Loop
+      function renderLoop() {
+        requestAnimationFrame(renderLoop);
+
+        const delta = clock.getDelta();
+
+        // Smooth mouse damping
+        mouse.x += (mouse.targetX - mouse.x) * 0.05;
+        mouse.y += (mouse.targetY - mouse.y) * 0.05;
+
+        if (backgroundUniforms) {
+          backgroundUniforms.iTime.value += delta;
+          // Organic pulse modulation
+          backgroundUniforms.audio1.value = 2.66 + Math.sin(backgroundUniforms.iTime.value * 1.5) * 0.12;
+          backgroundUniforms.iMouse.value.x += (mouse.x - backgroundUniforms.iMouse.value.x) * 0.05;
+          backgroundUniforms.iMouse.value.y += (mouse.y - backgroundUniforms.iMouse.value.y) * 0.05;
+        }
+
+        // Rotate cosmic dust
+        if (backgroundUniforms) {
+          const t = backgroundUniforms.iTime.value;
+          particles1.rotation.z = -0.03 * t;
+          particles2.rotation.z = 0.02 * t;
+        }
+
+        // Camera parallax
+        camera.position.x += (-mouse.x * 0.008 - camera.position.x) * 0.05;
+        camera.position.y += (mouse.y * 0.008 - camera.position.y) * 0.05;
+
+        renderer.render(scene, camera);
+      }
+
+      renderLoop();
+    })();
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "name": "masterpiece-portfolio-site",
+  "version": "1.0.0",
+  "description": "Exact 1:1 replica of Richard Mattka 3D audio-reactive WebGL portfolio tailored for Said Khan",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "preview": "node server.mjs"
+  },
+  "keywords": [
+    "3d",
+    "webgl",
+    "threejs",
+    "audio-reactive",
+    "raymarching",
+    "shader"
+  ],
+  "author": "Said Khan",
+  "license": "MIT"
+}

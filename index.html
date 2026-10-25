@@ -1,0 +1,432 @@
+<html>
+<head>
+	<meta charset="utf-8"/>
+	<base href="/">
+	<meta name="robots" content="follow">
+	<meta name="author" content="Said Khan">
+	<meta name="copyright" content="2026">
+	<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="apple-mobile-web-app-capable" content="yes"/>
+	<meta name="mobile-web-app-capable" content="yes"/>
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+	<title>Said Khan | Portfolio</title>
+	<!-- og, twitter, share tags -->
+	<meta name="keywords" content="Said Khan, Synergy Seeker, synergyseeker, developer, creative, webgl, threejs, 3d, vr, ar, virtual reality, augmented reality, shaders, shader, glsl, graphics, javascript, films, video games, coding, coder, programmer, interactive, designer, webdev, gamedev, webdesign, movies, warof1996, annabelle, wonderwoman, batman, sony, 20th centruy fox, fox, hunger games, lionsgate, new line cinema, warner bros, wb"/>
+	<!--<meta property="fb:app_id" content="" />-->
+	<meta property="og:type" content="website" />
+	<meta name="description" content="Said Khan is an award-winning Full-stack Developer and Digital Marketer. Currently available for Freelance, exploring AR/VR, Interactive, Film, WebGL, Shaders, 3D, and Visual FX👽">
+	<meta property="og:url" content="https://richardmattka.com">
+	<meta property="og:title" content="Said Khan | Portfolio">
+	<meta property="og:description" content="Said Khan is an award-winning Full-stack Developer and Digital Marketer. Currently available for Freelance, exploring AR/VR, Interactive, Film, WebGL, Shaders, 3D, and Visual FX👽">
+	<meta property="og:image" content="https://richardmattka.com/assets/images/share-4.jpg"/>
+	<meta property="og:image:type" content="image/jpg"/>
+	<meta property="og:image:width" content="1200"/>
+	<meta property="og:image:height" content="630"/>
+	<meta name="twitter:card" content="summary_large_image">
+	<meta name="twitter:site" content="@synergyseeker">
+	<meta name="twitter:title" content="Said Khan | Portfolio">
+	<meta name="twitter:description" content="Said Khan is an award-winning Full-stack Developer and Digital Marketer. Currently available for Freelance, exploring AR/VR, Interactive, Film, WebGL, Shaders, 3D, and Visual FX👽">
+	<meta name="twitter:creator" content="@synergyseeker">
+	<meta name="twitter:image" content="https://richardmattka.com/assets/images/share-4.jpg"/>
+	<!-- end share tags -->
+
+	<!-- styles -->
+	<link rel="stylesheet" type="text/css" href="css/style.css?v=20261025_mono">
+	<link rel="stylesheet" href="https://use.typekit.net/wvh2fzc.css">
+	<link rel="stylesheet" href="css/aos.css" />
+
+	<!-- end styles -->
+
+	<!-- favicons -->
+	<link rel="Shortcut Icon" type="image/ico" href="icon.png">
+	<link rel="apple-touch-icon" href="icon.png">
+	<!-- favicons -->
+
+	<script src="https://player.vimeo.com/api/player.js"></script>
+	<script src="https://www.youtube.com/iframe_api"></script>
+	
+
+	<!-- load libs -->
+	<script src="libs/jquery.min.js"></script>
+	<script src="libs/vanilla-tilt.min.js"></script>
+	<script src="libs/instafeed.min.js"></script>
+	<script src="libs/three.min.js"></script>
+	<script src="libs/stats.min.js"></script>
+	<script src="libs/FBXLoader.js"></script>
+	<script src="libs/inflate.min.js"></script>
+	<script src="libs/aos.js"></script>
+
+	
+	
+	<script src="libs/howler.min.js"></script>
+	<script src="libs/TweenMax.min.js"></script>
+	
+	<!-- load core scripts -->
+	<script src="js/main.js?v=20261025_direct"></script>
+	<script src="js/views.js?v=20261025_direct"></script>
+	<script src="js/webgl.js?v=20261025_direct"></script>
+	<script src="data/site.js?v=20261025_mono"></script>
+	<script src="libs/utils.js?v=20261025_direct"></script>
+
+	<script>
+		var _rawPath = window.location.pathname.replace(/^\/+|\/+$/g, '').split('/');
+		if (_rawPath[0] && _rawPath[0] !== 'admin' && _rawPath[0] !== 'index.html') {
+			section = _rawPath[0];
+			if (_rawPath[1]) page = _rawPath[1];
+		} else {
+			section = 'home';
+		}
+	</script>
+</head>
+<body>
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-110093496-1"></script>
+	<script>
+	  window.dataLayer = window.dataLayer || [];
+	  function gtag(){dataLayer.push(arguments);}
+	  gtag('js', new Date());
+
+	  gtag('config', 'UA-110093496-1');
+	</script>
+	<div class="background" id="background"></div>
+	<canvas id="webgl"></canvas>
+	<!--<video  id="webGLVideo1" crossOrigin="anonymous" webkit-playsinline style="display:none" playsinline class='background-video' src='' loop preload muted="true"></video>-->
+	
+	<!-- home -->
+	<div class="home page">
+		<div class="titles" data-aos-duration="4000" data-aos-delay="200">
+			<div class="page-title" data-aos-duration="2000" data-aos-delay="200"></div>
+			<div class="page-subtitle" data-aos-duration="2000" data-aos-delay="600"></div>
+		</div>
+	</div>
+	<div class="footer-menu">
+			<ul class="menu-items">
+			</ul>
+	</div>
+	<!-- end home -->
+
+	<!-- work -->
+	<div class="work page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div class="list"></div>
+	</div>
+	<!-- end work -->
+
+
+	<!-- prototypes -->
+	<div class="prototypes page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div class="list"></div>
+	</div>
+	<!-- end prototypes -->
+
+	<!-- art -->
+	<div class="art page hide">
+		<div class="page-title" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div class="list"></div>
+	</div>
+	<!-- end art -->
+
+	<!-- press -->
+	<div class="press page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div class="list"></div>
+		<div class="interviews-title section-title"></div>
+		<div class="interviews-list list"></div>
+
+	</div>
+	<!-- end press -->
+
+
+	<!-- about -->
+	<div class="info page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div data-aos='zoom-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="feature">
+			<div class="feature-content"></div>
+		</div>
+		<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="bio-title section-title"></div>
+		<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="bio"></div>
+		<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="skills-block info-block">
+			<div class="skills-title section-title">[ skills &amp; core architecture ]</div>
+			<div class="skills-list"></div>
+		</div>
+		<div class="awards-block info-block">
+			<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="awards-title section-title"></div>
+			<div class="awards-list"></div>
+		</div>
+		<div class="clients-block info-block">
+			<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="clients-title section-title"></div>
+			<div class="clients-list"></div>
+		</div>
+		<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="instafeed-title section-title"></div>
+		<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' id='instafeed'></div>
+		<!--
+		<div class="twitter-title section-title"></div>
+		
+		<a class="twitter-timeline" data-width="400" data-height="400" data-theme="dark" data-chrome='noheader, nofooter,  transparent, noscrollbar'  data-link-color="#2B7BB9" href="https://twitter.com/synergyseeker?ref_src=twsrc%5Etfw">Tweets by synergyseeker</a> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+		-->
+		<div class="social-block info-block">
+			<div data-aos='fade-in' data-aos-easing='ease-in-out' data-aos-offset='50' data-aos-duration='1000' data-aos-delay='50' class="social-title section-title"></div>
+			<div class="social-list"></div>
+		</div>
+
+	</div>
+	<!-- end about -->
+
+	<!-- contact-->
+	<div class="contact page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="page-content"></div>
+		<div class="list"></div>
+		<div class="locations-title"></div>
+		<div class="locations"></div>
+		<div class="links"></div>
+	</div>
+	<!-- end contact -->
+
+
+	<!-- work detail (eliminated/bypassed as requested) -->
+	<div class="work-detail page hide" style="display: none !important;">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="feature" data-aos='fade-in'>
+			<div class="feature-content"></div>
+		</div>
+		<div class="next-button" data-aos='fade-left'>
+			<img class="next-button-circle" src="assets/images/circle.svg" />
+			<img class="next-button-arrow" src="assets/images/arrow.svg" />
+		</div>
+		<div class="client" data-aos='fade-in'></div>
+		<div class="role" data-aos='fade-in'></div>
+		<div class="content-title section-title" data-aos='fade-in'></div>
+		
+		<div class="content" data-aos='fade-in'></div>
+
+		<div class="awards-block info-block" data-aos='fade-in'>
+			<div class="awards-title section-title"></div>
+			<div class="awards-list"></div>
+		</div>
+		<div class="press-block info-block" data-aos='fade-in'>
+			<div class="press-title section-title"></div>
+			<div class="press-list"></div>
+		</div>
+		<div class="links-block info-block" data-aos='fade-in'>
+			<div class="links-title"></div>
+			<div class="links-list"></div>
+		</div>
+		<div class="social-block info-block" data-aos='fade-in'>
+			<div class="social-title section-title"></div>
+			<div class="social-list">
+				<img class="social-link share-page-twitter list-item" src="assets/images/twitter.png" />
+				<img class="social-link share-page-facebook list-item" src="assets/images/facebook.png" />
+			</div>
+		</div>
+		<div class="media-block info-block" data-aos='fade-in'>
+			<div class="media-title section-title"></div>
+			<div class="media-list"></div>
+		</div>
+		<div class="related-title section-title" data-aos='fade-in' ></div>
+		<div class="related-list" data-aos='fade-in'></div>
+		<div class="bottom-nav" >
+			<div class="bottom-back">&#8672; prev</div>
+			<div class="bottom-up">back to work</div>
+			<div class="bottom-next">next &#8674;</div>
+		</div>
+	</div>
+	<!-- end work detail -->
+
+	<!-- press detail -->
+	<div class="press-detail page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="feature" data-aos='fade-in'>
+			<div class="feature-content"></div>
+		</div>
+		<div class="next-button" data-aos='fade-left'>
+			<img class="next-button-circle" src="assets/images/circle.svg" />
+			<img class="next-button-arrow" src="assets/images/arrow.svg" />
+		</div>
+		<div class="content-title section-title" data-aos='fade-in'></div>
+		<div class="content" data-aos='fade-in' ></div>
+		<div class="links-block info-block" data-aos='fade-in'>
+			<div class="links-title"></div>
+			<div class="links-list"></div>
+		</div>
+		<div class="social-block info-block" data-aos='fade-in' >
+			<div class="social-title section-title"></div>
+			<div class="social-list">
+				<img class="social-link share-page-twitter list-item" src="assets/images/twitter.png" />
+				<img class="social-link share-page-facebook list-item" src="assets/images/facebook.png" />
+			</div>
+		</div>
+		<div class="media-block info-block" data-aos='fade-in' >
+			<div class="media-title section-title"></div>
+			<div class="media-list"></div>
+		</div>
+		<div class="related-title section-title" data-aos='fade-in'></div>
+		<div class="related-list" data-aos='fade-in'></div>
+		<div class="bottom-nav">
+			<div class="bottom-back">&#8672; prev</div>
+			<div class="bottom-up">back to press</div>
+			<div class="bottom-next">next &#8674;</div>
+		</div>
+	</div>
+	<!-- end press detail -->
+
+	
+
+
+
+	<!-- prototypes detail -->
+	<div class="prototypes-detail page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="feature" data-aos='fade-in'>
+			<div class="feature-content"></div>
+		</div>
+		<div class="next-button" data-aos='fade-left'>
+			<img class="next-button-circle" src="assets/images/circle.svg" />
+			<img class="next-button-arrow" src="assets/images/arrow.svg" />
+		</div>
+		<!--<div class="client" data-aos='fade-in'></div>
+		<div class="role" data-aos='fade-in'></div>-->
+		<div class="content-title section-title" data-aos='fade-in'></div>
+		
+		<div class="content" data-aos='fade-in'></div>
+
+		<div class="awards-block info-block" data-aos='fade-in'>
+			<div class="awards-title section-title"></div>
+			<div class="awards-list"></div>
+		</div>
+		<div class="press-block info-block" data-aos='fade-in'>
+			<div class="press-title section-title"></div>
+			<div class="press-list"></div>
+		</div>
+		<div class="links-block info-block" data-aos='fade-in'>
+			<div class="links-title"></div>
+			<div class="links-list"></div>
+		</div>
+		<div class="social-block info-block" data-aos='fade-in'>
+			<div class="social-title section-title"></div>
+			<div class="social-list">
+				<img class="social-link share-page-twitter list-item" src="assets/images/twitter.png" />
+				<img class="social-link share-page-facebook list-item" src="assets/images/facebook.png" />
+			</div>
+		</div>
+		<div class="media-block info-block" data-aos='fade-in'>
+			<div class="media-title section-title"></div>
+			<div class="media-list"></div>
+		</div>
+		<div class="related-title section-title"data-aos='fade-in' ></div>
+		<div class="related-list" data-aos='fade-in'></div>
+		<div class="bottom-nav" >
+			<div class="bottom-back">&#8672; prev</div>
+			<div class="bottom-up">back to prototypes</div>
+			<div class="bottom-next">next &#8674;</div>
+		</div>
+	</div>
+	<!-- end prototypes detail -->
+
+
+	<!-- art detail -->
+	<div class="art-detail page hide">
+		<div class="page-title"  data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="200"></div>
+		<div class="page-subtitle" data-aos='zoom-in' data-aos-duration="1000" data-aos-delay="400"></div>
+		<div class="feature" data-aos='fade-in'>
+			<div class="feature-content"></div>
+		</div>
+		<div class="next-button" data-aos='fade-left'>
+			<img class="next-button-circle" src="assets/images/circle.svg" />
+			<img class="next-button-arrow" src="assets/images/arrow.svg" />
+		</div>
+		<div class="content-title section-title" data-aos='fade-in'></div>
+		
+		<div class="content" data-aos='fade-in'></div>
+
+		<div class="awards-block info-block" data-aos='fade-in'>
+			<div class="awards-title section-title"></div>
+			<div class="awards-list"></div>
+		</div>
+		<div class="press-block info-block" data-aos='fade-in'>
+			<div class="press-title section-title"></div>
+			<div class="press-list"></div>
+		</div>
+		<div class="links-block info-block" data-aos='fade-in'>
+			<div class="links-title"></div>
+			<div class="links-list"></div>
+		</div>
+		<div class="social-block info-block" data-aos='fade-in'>
+			<div class="social-title section-title"></div>
+			<div class="social-list">
+				<img class="social-link share-page-twitter list-item" src="assets/images/twitter.png" />
+				<img class="social-link share-page-facebook list-item" src="assets/images/facebook.png" />
+			</div>
+		</div>
+		<div class="media-block info-block" data-aos='fade-in'>
+			<div class="media-title section-title"></div>
+			<div class="media-list"></div>
+		</div>
+		<div class="related-title section-title"data-aos='fade-in' ></div>
+		<div class="related-list" data-aos='fade-in'></div>
+		<div class="bottom-nav" >
+			<div class="bottom-back">&#8672; prev</div>
+			<div class="bottom-up">back to art</div>
+			<div class="bottom-next">next &#8674;</div>
+		</div>
+	</div>
+	<!-- end art detail -->
+
+
+	<!-- menu -->
+	<div class="menu">
+		<ul class="menu-items">
+		</ul>
+	</div>
+	<!-- end menu -->
+	<!-- header -->
+	<div class="header">
+		<div class="header-title"></div>
+		<img class="logo" src="assets/images/alien.svg" />
+		<div class="header-menu">
+			<ul class="menu-items">
+			</ul>
+		</div>
+		<div class="menu-button">
+			<span></span>
+		   	<span></span>
+		</div>
+	</div>
+	<!-- end header -->
+	
+	<!-- loader -->
+	<div class="loader"></div>
+	<!--<img class="loader-icon" src='assets/images/loader.gif' />-->
+	<!-- end loader -->
+	<!-- bars -->
+	<div class="top-bar"></div>
+	<div class="bottom-bar"></div>
+	<!-- bars -->
+	<div class="footer-sound">
+		<span id="bar-1" class="sbar"></span>
+		<span id="bar-2" class="sbar"></span>
+		<span id="bar-3" class="sbar"></span>
+		<span id="bar-4" class="sbar"></span>
+	</div>
+	<div id="reel">
+		<div class="reel-video"></div>
+		<div class="close-button close"></div>
+	</div>
+
+	<script>APP.init();</script>
+</body>
+</html>
