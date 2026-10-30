@@ -10,6 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="libs/three.min.js"></script>
+  <script>window.APP = window.APP || {};</script>
+  <script src="data/site.js"></script>
   <style>
     :root {
       --bg: #030712;
@@ -1600,9 +1602,9 @@
         console.warn("API data not available, falling back to static data", err);
       }
 
-      // 2. Fallback to /data/site.json
+      // 2. Fallback to data/site.json
       try {
-        const res = await fetch("/data/site.json");
+        const res = await fetch("data/site.json");
         SITE_DATA = await res.json();
         renderAll();
         markClean();

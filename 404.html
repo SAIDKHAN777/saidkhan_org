@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Said Khan | Portfolio</title>
+  <script type="text/javascript">
+    // SPA redirect for GitHub Pages (handles direct routes & subfolder paths)
+    var l = window.location;
+    var pathname = l.pathname;
+    var isSubfolder = l.hostname.endsWith('github.io') && pathname.indexOf('/saidkhan_org') === 0;
+    var prefix = isSubfolder ? '/saidkhan_org' : '';
+    var subPath = isSubfolder ? pathname.replace(/^\/saidkhan_org/, '') : pathname;
+
+    // Check if visiting admin console
+    if (subPath === '/admin' || subPath === '/admin/') {
+      l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + prefix + '/admin.html');
+    } else {
+      // Standard SPA route redirect to index.html with preserved URL
+      var pathSegmentsToKeep = isSubfolder ? 1 : 0;
+      l.replace(
+        l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+        l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+        l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+        (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+        l.hash
+      );
+    }
+  </script>
+</head>
+<body>
+</body>
+</html>
